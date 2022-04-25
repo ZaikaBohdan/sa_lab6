@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 import streamlit as st
+import altair as alt
 
 
 yes_no = lambda x: 'Так' if x is True else 'Ні'
@@ -72,3 +73,27 @@ def find_even_cycles(df, G):
 
 def check_structural_stability(df, G):
     return find_even_cycles(df, G)[0].shape[0] == 0
+
+def impulse_model(t, Q, df):
+    title = f'Q = {list(Q)}'
+
+    A = np.array(df)
+    x_i = [np.zeros(A.shape[0]), np.zeros(A.shape[0])]
+    for _ in range(t):
+        x_new = x_i[-1] + np.matmul(A, x_i[-1] - x_i[-2]) + Q
+        x_i.append(x_new)
+        Q = np.zeros(A.shape[0])
+    
+    source = pd.DataFrame(
+        x_i,
+        columns=[f'e{i}' for i in range(A.shape[0])]
+        )
+    source = source.reset_index().melt('index', var_name='category', value_name='y')
+
+    line_chart = alt.Chart(source).mark_line().encode(
+        alt.X('index', title='t'),
+        alt.Y('y', title='x(t)'),
+        color='category:N'
+    ).properties(title=title)
+
+    st.altair_chart(line_chart, use_container_width=True)

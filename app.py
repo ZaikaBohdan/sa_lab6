@@ -6,12 +6,12 @@ import pandas as pd
 from lab6_func import *
 
 st.set_page_config(
-    page_title='СА Лаб 6: Когнітивне та імпульсивне моделювання',
+    page_title='СА Лаб 6: Когнітивне та імпульсне моделювання',
     page_icon='🎓',
     layout='wide'
 )
 
-st.write("# СА Лаб 6: Когнітивне та імпульсивне моделювання")
+st.write("# СА Лаб 6: Когнітивне та імпульсне моделювання")
 
 with st.sidebar.header('1. Виберіть .xlsx файл'):
     uploaded_file = st.sidebar.file_uploader("Виберіть .xlsx файл з когнітивною картою", type=["xlsx"])
@@ -21,6 +21,7 @@ with st.sidebar.header('1. Виберіть .xlsx файл'):
     """)
 
 if uploaded_file is not None:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Когнітивна карта <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     st.write("## Когнітивна карта")
     
     c1, c2 = st.columns(2) 
@@ -33,14 +34,6 @@ if uploaded_file is not None:
     c1.write("### Граф")
     graph = build_graph(cogn_map, c1)
 
-    # with st.sidebar.header('2. Виберіть тип моделювання'):
-    #     model_type = st.sidebar.selectbox(
-    #         'Виберіть тип моделювання',
-    #         [f'{name} моделювання' for name in ["Когнітивне", "Імпульсивне"]],
-    #         0
-    #     )
-
-    # add effect from select box
     c2.write("### Стійкість")
 
     stab_vals = [
@@ -59,10 +52,31 @@ if uploaded_file is not None:
     eigvals_list = [str(val).strip('()').replace('j', 'i') for val in eigvals(cogn_map)]
     
     c2.write(f"### Власні числа (max|λ| = {get_spectral_radius(cogn_map): .2f})")
-    c2.write(eigvals_list)
+    c2.dataframe(pd.Series(eigvals_list, name='Власні числа'), height=205)
 
     c2.write(f"### Парні цикли")
-    c2.write(find_even_cycles(cogn_map, graph)[0])
+    if stab_vals[2]:
+        c2.write('Відсутні')
+    else:
+        c2.dataframe(find_even_cycles(cogn_map, graph)[0], height=205)
+
+    
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Імпульсивне моделювання <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    with st.sidebar.header('2. Параметри імпульсного моделювання'):
+        Q = np.zeros(8)
+        cols = st.sidebar.columns(2)
+        t = st.sidebar.number_input('N ітерацій', min_value=0, value=5)
+        for i in range(8):
+            Q[i] = cols[i%2].selectbox(
+                f'Q({i})',
+                [-1, 0, 1],
+                1
+            )
+        imp_mod_button = st.sidebar.button('Виконати')
+
+    if imp_mod_button:
+        st.write("## Імпульсне моделювання")
+        impulse_model(t, Q, cogn_map)
 
 else:
     st.info('Виберіть .xlsx файл з вхідними даними у боковому вікні зліва.')
