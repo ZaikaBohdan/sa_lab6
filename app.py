@@ -33,23 +33,23 @@ if uploaded_file is not None:
     c1.write("### Граф")
     graph = build_graph(cogn_map, c1)
 
-    with st.sidebar.header('2. Виберіть тип моделювання'):
-        model_type = st.sidebar.selectbox(
-            'Виберіть тип моделювання',
-            [f'{name} моделювання' for name in ["Когнітивне", "Імпульсивне"]],
-            0
-        )
+    # with st.sidebar.header('2. Виберіть тип моделювання'):
+    #     model_type = st.sidebar.selectbox(
+    #         'Виберіть тип моделювання',
+    #         [f'{name} моделювання' for name in ["Когнітивне", "Імпульсивне"]],
+    #         0
+    #     )
 
     # add effect from select box
     c2.write("### Стійкість")
 
-    stab_funcs = [
-        check_perturbation_stability, 
-        check_numerical_stability, 
-        check_structural_stability
+    stab_vals = [
+        check_perturbation_stability(cogn_map), 
+        check_numerical_stability(cogn_map), 
+        check_structural_stability(cogn_map, graph)
         ]
     stab_df = pd.DataFrame(
-        [yes_no(func(cogn_map)) for func in stab_funcs], 
+        [yes_no(val) for val in stab_vals], 
         index = ['За збуренням', 'Чисельна', 'Структурна'],
         columns=['Так/Ні']
         )

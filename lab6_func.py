@@ -70,5 +70,5 @@ def find_even_cycles(df, G):
     
     return cycles[even_mask].reset_index(drop=True), cycles
 
-def check_structural_stability(df):
-    return True
+def check_structural_stability(df, G):
+    return find_even_cycles(df, G)[0].shape[0] == 0
