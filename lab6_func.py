@@ -9,7 +9,7 @@ import streamlit as st
 import altair as alt
 
 
-yes_no = lambda x: 'Так' if x is True else 'Ні'
+yes_no = lambda x: 'Так' if x else 'Ні'
 
 def build_graph(df, st_place):
     G = nx.DiGraph()
